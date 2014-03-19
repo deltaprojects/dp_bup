@@ -1,0 +1,7 @@
+Maybe change pattern Regexp.escape(bupcmd) to pattern Regexp.escape(new_resource.name).
+That way if someone adds or changes a pre- or postcmd it will not create a new line in cron.d/bup.
+
+bup split mysql
+# mysqldump --add-drop-database --opt --skip-comments --all-databases | bup split -n 
+# mysqldump --add-drop-database --opt --skip-comments --databases  | bup split -n 
+# --user="user" --password="password"

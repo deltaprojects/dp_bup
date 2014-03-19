@@ -1,0 +1,10 @@
+name             "dp_bup"
+maintainer       "Delta Projects AB"
+maintainer_email "root@deltaprojects.com"
+license          "Apache 2.0"
+description      "Backup cookbook using bup"
+version          "0.1"
+
+depends "nfs"
+depends "cron"
+depends "line"
