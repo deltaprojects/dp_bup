@@ -33,7 +33,7 @@ cron_d "bup_fsck" do
   home bupdir
 end
 
-# setup a nfs server
+# setup a nfs server 
 include_recipe "nfs::server"
 
 # export the backup directory via nfs
