@@ -78,7 +78,7 @@ action :backup do
 end # end action: backup
 
 action :delete do
-  bupcmd = "(/usr/bin/bup index -f /var/cache/bup/bupindex -ux #{new_resource.name} && /usr/bin/bup -d #{new_resource.backupdir} save -f /var/cache/bup/bupindex -1 -n ${HOSTNAME} #{new_resource.name}) 2>&1 >> /var/log/cron_output.log"
+  bupcmd = "(/usr/bin/bup index -f /var/cache/bup/bupindex -ux #{new_resource.name} && /usr/bin/bup -d #{new_resource.backupdir} save -f /var/cache/bup/bupindex -1 -n #{new_resource.bupname} #{new_resource.name}) 2>&1 >> /var/log/cron_output.log"
   restest = delete_lines "remove crontab line from /etc/cron.d/bup" do
     path "/etc/cron.d/bup"
     pattern Regexp.escape(bupcmd)
