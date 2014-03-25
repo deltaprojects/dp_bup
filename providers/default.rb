@@ -52,7 +52,7 @@ action :backup do
   else
     restest = replace_or_add "add crontab line to /etc/cron.d/bup" do
       path "/etc/cron.d/bup"
-      pattern Regexp.escape(bupcmd)
+      pattern ".*/usr/bin/bup.*-n #{Regexp.escape(new_resource.bupname)} .*"
       line cronline
     end
     new_resource.updated_by_last_action(restest.updated_by_last_action?)
@@ -78,10 +78,9 @@ action :backup do
 end # end action: backup
 
 action :delete do
-  bupcmd = "(/usr/bin/bup index -f /var/cache/bup/bupindex -ux #{new_resource.name} && /usr/bin/bup -d #{new_resource.backupdir} save -f /var/cache/bup/bupindex -1 -n #{new_resource.bupname} #{new_resource.name}) 2>&1 >> /var/log/cron_output.log"
   restest = delete_lines "remove crontab line from /etc/cron.d/bup" do
     path "/etc/cron.d/bup"
-    pattern Regexp.escape(bupcmd)
+    pattern ".*/usr/bin/bup.*-n #{Regexp.escape(new_resource.bupname)} .*"
   end
   new_resource.updated_by_last_action(restest.updated_by_last_action?)
 
