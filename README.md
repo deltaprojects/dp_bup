@@ -2,7 +2,7 @@
 
 ## Overview
 This cookbook allows you to install bup on client and server and then schedule backups.
-It depends the cookbooks [cron](https://github.com/opscode-cookbooks/cron), [nfs](https://github.com/atomic-penguin/cookbook-nfs) and [line](https://github.com/someara/line-cookbook).
+It depends the cookbooks [cron](https://github.com/opscode-cookbooks/cron) and [line](https://github.com/someara/line-cookbook).
 
 ### usage
 **Clients:**
@@ -25,42 +25,42 @@ dp_bup "/opt/applications/data /etc" do
 end
 ```
 
-Do this even if you want to just remove */etc* from backup. Then create a new `dp_bup /opt/xxx…`
+You also need to generate a ssh key pair and create a file *files/default/bup_id_rsa*
 
 **Servers:**
 
-To setup a backup server. Have a look in *dp_bup::server* or just apply that recipe.
+To setup a bup server. Have a look in *dp_bup::server* or just apply that recipe.
+
+Currently it will install bup, create bup user, add bup public RSA key with limited use to only bup server, initialize bup repository and schedule `bup fsck -g`.
+
+Don't forget to change the *files/default/authorized_keys* to match your public key used for backups.
 
 #### Available options
-* **bupname** - name in bup of the backup(defaults to ${HOSTNAME}) - You might want to backup several applications in different recipes. Then this could be something like ${HOSTNAME}_app01.
+* **bupname** - name in bup of the backup(defaults to ${HOSTNAME} so you might want to set this if one node is running multiple backups) - You might also want to backup several applications in different recipes. Then this could be something like "${HOSTNAME}_app01".
 * **precmd** - command to run before backup(defaults to false).
 * **postcmd** - command to run after backup(defaults to false).
 * **backupsrv** - destination backup server(this option is required).
 * **backupdst** - destination directory(defaults to /backup/bup).
-* **backupdir** - destination NFS mount(defaults to /mnt/bup).
 * **minute** - (defaults to 0).
 * **hour** - (defaults to 4).
 * **day** - (defaults to *).
 * **month** - (defaults to *).
 * **weekday** - (defaults to *).
 
-Full example:
+Examples:
 
 ```ruby
 dp_bup "/opt/application/data /etc" do
   bupname "${HOSTNAME}"
   backupsrv "backupsrv01.local.corp"
   backupdst "/backup/bup"
-  backupdir "/mnt/bup"
   minute "10"
-  hour "3"
-  day "*/2"
+  hour "*/3"
+  day "*"
   month "*"
   weekday "1-5"
 end
 ```
-
-more examples:
 
 ```ruby
 	dp_bup "/etc/bind /var/cache/bind" do

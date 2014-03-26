@@ -8,25 +8,42 @@ action :backup do
   end
   new_resource.updated_by_last_action(restest.updated_by_last_action?)
   
-  restest = directory new_resource.backupdir do
-    owner "nobody"
-    group "nogroup"
-    mode "0755"
+  # make sure root has a dot ssh dir
+  restest = directory "/root/.ssh/" do
+    owner "root"
+    group "root"
+    mode "0700"
     action :create
   end
   new_resource.updated_by_last_action(restest.updated_by_last_action?)
-  
-  # mount backup server
-  restest = mount new_resource.backupdir do
-    device "#{new_resource.backupsrv}:#{new_resource.backupdst}"
-    fstype "nfs"
-    options "rw"
-    action [:mount, :enable]
+
+  # create private key for backup server
+  restest = cookbook_file "/root/.ssh/bup_id_rsa" do
+    source "bup_id_rsa"
+    owner "root"
+    group "root"
+    mode "0600"
+    cookbook "dp_bup"
   end
   new_resource.updated_by_last_action(restest.updated_by_last_action?)
-  
+
+  restest = file "/root/.ssh/config" do
+    action :create_if_missing
+    owner "root"
+    group "root"
+    mode "0644"
+  end
+  new_resource.updated_by_last_action(restest.updated_by_last_action?)
+
+  restest = replace_or_add "add bup ssh config" do
+    path "/root/.ssh/config"
+    pattern "Host #{new_resource.backupsrv}"
+    line "Host #{new_resource.backupsrv}\n  User bup\n  IdentityFile ~/.ssh/bup_id_rsa\n  StrictHostKeyChecking no"
+  end
+  new_resource.updated_by_last_action(restest.updated_by_last_action?)
+
   # setting the backup command that cron should run
-  bupcmd = "/usr/bin/bup index -f /var/cache/bup/bupindex -ux #{new_resource.name} && /usr/bin/bup -d #{new_resource.backupdir} save -f /var/cache/bup/bupindex -1 -n #{new_resource.bupname} #{new_resource.name}"
+  bupcmd = "/usr/bin/bup index -f /var/cache/bup/bupindex -ux #{new_resource.name} && /usr/bin/bup save -f /var/cache/bup/bupindex -1 -r #{new_resource.backupsrv}:#{new_resource.backupdst} -n #{new_resource.bupname} #{new_resource.name}"
  
   # add a command to run before backup
   if new_resource.precmd

@@ -9,7 +9,6 @@ attribute :postcmd, :kind_of => [String, FalseClass], :default => false
 # where to backup
 attribute :backupsrv, :kind_of => String, :required => true
 attribute :backupdst, :kind_of => String, :default => "/backup/bup"
-attribute :backupdir, :kind_of => String, :default => "/mnt/bup"
 # when to backup
 attribute :minute, :kind_of => [Integer, String], :default => "0"
 attribute :hour, :kind_of => [Integer, String], :default => "4"
@@ -22,6 +21,5 @@ def initialize(*args)
   @action = :backup
 
   @run_context.include_recipe "dp_bup"
-  @run_context.include_recipe "nfs"
   @run_context.include_recipe "cron"
 end
