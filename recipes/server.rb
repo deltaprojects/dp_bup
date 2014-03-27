@@ -13,6 +13,7 @@ group "bup" do
   gid 789
 end
 
+# create user for bup
 user "bup" do
   action :create
   comment "Backup user"
@@ -31,6 +32,7 @@ directory bupdir do
   action :create
 end
 
+# also we need the dot ssh dir
 directory "#{bupdir}/.ssh" do
   owner "bup"
   group "bup"
@@ -38,6 +40,7 @@ directory "#{bupdir}/.ssh" do
   action :create
 end
 
+# authorized_keys with a limited config to only run bup via SSH
 cookbook_file "#{bupdir}/.ssh/authorized_keys" do
   source "authorized_keys"
   owner "root"
