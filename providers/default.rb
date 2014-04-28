@@ -28,20 +28,23 @@ action :backup do
   new_resource.updated_by_last_action(restest.updated_by_last_action?)
 
   restest = file "/root/.ssh/config" do
-    action :create_if_missing
+    #action :create_if_missing
     owner "root"
     group "root"
     mode "0644"
+    content "Host #{new_resource.backupsrv}\n  User bup\n  IdentityFile ~/.ssh/bup_id_rsa\n  StrictHostKeyChecking no\n"
   end
   new_resource.updated_by_last_action(restest.updated_by_last_action?)
 
-  restest = replace_or_add "add bup ssh config" do
-    path "/root/.ssh/config"
-    pattern "Host #{new_resource.backupsrv}"
-    line "Host #{new_resource.backupsrv}\n  User bup\n  IdentityFile ~/.ssh/bup_id_rsa\n  StrictHostKeyChecking no"
-  end
+  # had to remove this since it's keeps creating same lines over and over..
+  # restest = replace_or_add "add bup ssh config" do
+  #   path "/root/.ssh/config"
+  #   pattern "Host #{new_resource.backupsrv}"
+  #   line "Host #{new_resource.backupsrv}\n  User bup\n  IdentityFile ~/.ssh/bup_id_rsa\n  StrictHostKeyChecking no"
+  # end
+  # new_resource.updated_by_last_action(restest.updated_by_last_action?)
+  
   new_resource.updated_by_last_action(restest.updated_by_last_action?)
-
   # setting the backup command that cron should run
   bupcmd = "/usr/bin/bup index -f /var/cache/bup/bupindex -ux #{new_resource.name} && /usr/bin/bup save -f /var/cache/bup/bupindex -1 -r #{new_resource.backupsrv}:#{new_resource.backupdst} -n #{new_resource.bupname} #{new_resource.name}"
  
