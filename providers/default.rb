@@ -36,6 +36,16 @@ action :backup do
   end
   new_resource.updated_by_last_action(restest.updated_by_last_action?)
 
+  # bup insists of having a local repository even though we're sending
+  # files to remote directory, so we create it.
+  restest = execute "create local .bup" do
+    cwd "/root/"
+    group "root"
+    command "/usr/bin/bup init"
+    creates "/root/.bup"
+  end
+  new_resource.updated_by_last_action(restest.updated_by_last_action?)
+
   # had to remove this since it's keeps creating same lines over and over..
   # restest = replace_or_add "add bup ssh config" do
   #   path "/root/.ssh/config"
